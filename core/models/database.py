@@ -14,3 +14,10 @@ try:
     print("Database connection successful.")
 except Exception as e:
     print("Error connecting to the database:", e)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
