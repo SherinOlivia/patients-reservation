@@ -9,6 +9,10 @@ uvicorn = "*"
 sqlalchemy = "*"
 psycopg2 = "*"
 psycopg2-binary = "*"
+pydantic = {extras = ["email"], version = "*"}
+bcrypt = "*"
+jwt = "*"
+pyjwt = "*"
 
 [dev-packages]
 

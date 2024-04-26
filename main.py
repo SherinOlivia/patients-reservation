@@ -1,15 +1,12 @@
 from fastapi import FastAPI
-from core.models.database import SessionLocal, engine
+from core.models.database import Base, SessionLocal, engine
+from v1 import api
 
 app = FastAPI()
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+Base.metadata.create_all(bind=engine)
         
+app.include_router(api.router, prefix="/v1")
 
 @app.get("/")
 def project_root():
