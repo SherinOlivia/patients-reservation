@@ -32,6 +32,11 @@ code .
 ```bash
 pipenv install
 ```
+or
+
+```bash
+pip install -r requirement.txt
+```
 
 5. Run the Server:
 
@@ -46,8 +51,8 @@ http://localhost:8000/
 ```
 or
 
-8. Or access the documentation provided by fastapi:
-[here](http://localhost:8000/docs)
+7. Or access the documentation provided by fastapi:
+[here (local)](http://localhost:8000/docs)
 
 ## Assumptions Made During Development
 
