@@ -48,10 +48,13 @@ def login(user_data: UserLogin, db:Session = Depends(get_db)):
         if not valid_password:
             raise HTTPException(status_code=401, detail="Incorrect password")
 
+        secret_key = "secret"
+
         token = jwt.encode({
-            'sub': user.email,
-            'exp': datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=+7))) + datetime.timedelta(hours=1)
-        }, 'secret_key', algorithm='HS256')
+            'email': user.email,
+            'role': user.role,
+            'exp': datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=+7))) + datetime.timedelta(hours=5)
+        }, secret_key, algorithm='HS256')
 
 
         return {
