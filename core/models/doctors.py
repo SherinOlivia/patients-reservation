@@ -9,4 +9,4 @@ class Doctor(Base):
     name = Column(String(100), nullable=False)
     specialization = Column(String(100), nullable=False)
 
-    schedules = relationship("Schedule", back_populates="doctors")
+    schedules = relationship("Schedule", back_populates="doctor")
