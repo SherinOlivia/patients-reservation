@@ -1,4 +1,3 @@
-from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Header
 from core.models.doctors import Doctor as DBDoctor
 from core.schemas.doctors import Doctor as DoctorSchema, DoctorListResponse, DoctorResponse
@@ -22,7 +21,7 @@ def register(doctor_data: DoctorSchema, db:Session = Depends(get_db), authorizat
         if payload.get('role') != "admin":
             raise HTTPException(status_code=401, detail="Unauthorized Access!")
         
-        existing_doctor = db.query(DBDoctor).filter(DBDoctor.name == doctor_data.name).first()
+        existing_doctor = db.query(DBDoctor).filter_by(name=doctor_data.name).first()
         if existing_doctor:
             raise HTTPException(status_code=400, detail="Doctor already registered")
 
