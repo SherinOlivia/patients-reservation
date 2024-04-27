@@ -2,6 +2,8 @@
 
 Part of initial recruitment test by Zi.Care, I was tasked to design schema and write the CRUD APIs for the topic patients reservation, where from a list of patients, each of them can book a reservation for a consultation and the reservation is based on the clinic slot/schedule availability, lastly the patient will get the queue number.
 
+## Database Schema
+
 ## How to Set Up
 
 To Start the patients-reservation APIs locally, follow these steps:
@@ -48,14 +50,17 @@ or
 ## Assumptions Made During Development
 
 1. **Users:** 
-- registraion process gives the user the role `patient` by default.
-- registering as `Admin` can **only** be done by existing admins
+- registration process gives the user the role `patient` by default.
+- registering as `admin` can **only** be done by existing admins
 2. **Doctors:** 
 - Doctor registrations can **only** be done by `admin` and **only** for reservation purposes not for directly interacting with the `patient` (therefore no login function available for `doctors`)
 3. **Schedules:** 
 - each schedule **only** has one slot, hence the usage of `is_available` field.
 - `admin` can update the current date's schedules to new date instead of creating new schedules daily
 - `admin` can manually update the availability of each schedule
+4. **Reservations:** 
+- resets **by date** instead of hourly
+- **cannot** book reservations on schedules with **same date and time** even if by different doctors
 
 ## Personal Take
 
