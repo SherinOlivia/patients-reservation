@@ -4,6 +4,8 @@ Part of initial recruitment test by Zi.Care, I was tasked to design schema and w
 
 ## Database Schema
 
+![database-schema](asset/patients-reservations-diagram.png)
+
 ## How to Set Up
 
 To Start the patients-reservation APIs locally, follow these steps:
@@ -54,15 +56,26 @@ or
 - registering as `admin` can **only** be done by existing admins
 2. **Doctors:** 
 - Doctor registrations can **only** be done by `admin` and **only** for reservation purposes not for directly interacting with the `patient` (therefore no login function available for `doctors`)
+- list of doctors can be accessed by patients.
 3. **Schedules:** 
 - each schedule **only** has one slot, hence the usage of `is_available` field.
-- `admin` can update the current date's schedules to new date instead of creating new schedules daily
+- `admin` can create new schedules with new date using data of existing date.
 - `admin` can manually update the availability of each schedule
 4. **Reservations:** 
 - resets **by date** instead of hourly
 - **cannot** book reservations on schedules with **same date and time** even if by different doctors
+- `admin` can fetch reservation list of every patients.
+- `admin` manually updates the reservation status.
+- status **cannot** be updated if they are `cancelled` or `completed`
 
 ## Personal Take
+
+This mini project has been really challenging for me, especially as a first-timer in using fastapi framework. Fortunately for me, the information provided on the internet, whether through the [official documentation](https://fastapi.tiangolo.com/), questions someone else asked on Stack Overflow, private consultations with ChatGPT or anywhere else online are vast and informative.
+
+Especially thanks to this question on Stack Overflow: [What are the best practices for structuring a FastAPI project?](https://stackoverflow.com/questions/64943693/what-are-the-best-practices-for-structuring-a-fastapi-project), 
+I was able to start on a good footing ˙ᵕ˙
+
+Needless to say, this project, although started as part of the recruitment test by Zi.Care, is a promising project that I would love to return to develop and polish further! ˙ᵕ˙
 
 #### Contact Me
 
