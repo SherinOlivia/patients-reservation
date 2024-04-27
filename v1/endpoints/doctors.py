@@ -15,7 +15,7 @@ def register(doctor_data: DoctorSchema, db:Session = Depends(get_db), authorizat
         if not authorization:
             raise HTTPException(status_code=401, detail="Unauthorized")
 
-        token = authorization.split()[2]
+        token = authorization.split()[1]
         secret_key = "secret"
         payload = jwt.decode(token, secret_key, algorithms=['HS256'])
 

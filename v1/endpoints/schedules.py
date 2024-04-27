@@ -1,7 +1,7 @@
-from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Header
+from core.models.doctors import Doctor
 from core.models.schedules import Schedule as DBSchedule
-from core.schemas.schedules import Schedule as ScheduleSchema, ScheduleListResponse, ScheduleResponse
+from core.schemas.schedules import Schedule as ScheduleSchema, ScheduleListResponse, ScheduleResponse, UpdateScheduleAvailability, UpdateScheduleDate, UpdateScheduleDateResponse
 from core.models.database import get_db
 from sqlalchemy.orm import Session
 import jwt
@@ -24,13 +24,19 @@ def create_schedule(schedule_data: ScheduleSchema, db:Session = Depends(get_db),
         
         existing_schedule = db.query(DBSchedule).filter(
             DBSchedule.doctor_id == schedule_data.doctor_id,
+            DBSchedule.date == schedule_data.date,
             DBSchedule.start_time == schedule_data.start_time,
             DBSchedule.end_time == schedule_data.end_time
         ).first()
         if existing_schedule:
             raise HTTPException(status_code=400, detail="Schedule already registered")
 
-        new_schedule = DBSchedule(start_time = schedule_data.start_time, end_time = schedule_data.end_time, doctor_id = schedule_data.doctor_id)
+        new_schedule = DBSchedule(
+            date = schedule_data.date,
+            start_time = schedule_data.start_time, 
+            end_time = schedule_data.end_time, 
+            doctor_id = schedule_data.doctor_id
+        )
         
         db.add(new_schedule)
         db.commit()
@@ -76,8 +82,39 @@ def get_schedules(db:Session = Depends(get_db), authorization: str = Header(None
     finally:
         db.close()
 
+@scheduleRouter.get("/by-doctor/{doctor_id}", response_model=ScheduleListResponse)
+def get_schedules_by_doctor(doctor_id: int, db:Session = Depends(get_db), authorization: str = Header(None)):
+
+    try:
+        if not authorization:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        token = authorization.split()[1]
+        secret_key = "secret"
+        payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+
+        if payload is None:
+            raise HTTPException(status_code=401, detail="Unauthorized Access!")
+        
+        schedule_list = db.query(DBSchedule).filter(DBSchedule.doctor_id == doctor_id).all()
+        doctor = db.query(Doctor).filter(id=doctor_id).first()
+        if doctor is None:
+            raise HTTPException(status_code=404, detail=f"Doctor with ID {doctor_id} not found")
+
+        return {
+            "message": f"Fetch {doctor.name}'s Schedule List Success",
+            "data": schedule_list 
+        }
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    finally:
+        db.close()
+
 @scheduleRouter.patch("/{schedule_id}", response_model=ScheduleResponse)
-def update_schedule(schedule_id: int, schedule_data: ScheduleSchema, db:Session = Depends(get_db), authorization: str = Header(None)):
+def edit_schedule(schedule_id: int, schedule_data: ScheduleSchema, db:Session = Depends(get_db), authorization: str = Header(None)):
 
     try:
         if not authorization:
@@ -97,13 +134,16 @@ def update_schedule(schedule_id: int, schedule_data: ScheduleSchema, db:Session 
         # to prevent schedule update overlap with another existing schedule
         existing_schedule = db.query(DBSchedule).filter(
             DBSchedule.doctor_id == schedule_data.doctor_id,
+            DBSchedule.date == schedule_data.date,
             DBSchedule.start_time == schedule_data.start_time,
             DBSchedule.end_time == schedule_data.end_time,
             DBSchedule.id != schedule_id
         ).first()
         if existing_schedule is not None:
             raise HTTPException(status_code=400, detail="schedule with these details already exists")
-        
+
+        if schedule_data.date:
+            schedule.date = schedule_data.date
         if schedule_data.start_time:
             schedule.start_time = schedule_data.start_time
         if schedule_data.end_time:
@@ -151,6 +191,87 @@ def delete_schedule(schedule_id: int, db:Session = Depends(get_db), authorizatio
             "message": "Delete Schedule Success",
             "data": schedule
         }
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    finally:
+        db.close()
+
+@scheduleRouter.patch("/", response_model=UpdateScheduleDateResponse)
+def update_schedule_date(schedule_data: UpdateScheduleDate, db:Session = Depends(get_db), authorization: str = Header(None)):
+
+    try:
+        if not authorization:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        token = authorization.split()[1]
+        secret_key = "secret"
+        payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+
+        if payload.get('role') != "admin":
+            raise HTTPException(status_code=401, detail="Unauthorized Access!")
+        
+        schedules_by_date = db.query(DBSchedule).filter(date = schedule_data.old_date).all()
+        if not schedules_by_date:
+            raise HTTPException(status_code=400, detail="Schedule not found")
+        
+        # to prevent schedule update overlap with another existing schedule
+        for schedule in schedules_by_date:
+            existing_schedule = db.query(DBSchedule).filter(
+                DBSchedule.id != schedule.id,
+                DBSchedule.date == schedule_data.new_date,
+            ).first()
+            if existing_schedule is not None:
+                raise HTTPException(status_code=400, detail="schedule with these details already exists")
+
+            if schedule_data.new_date:
+                schedule.date = schedule_data.new_date
+
+        db.commit()
+        db.refresh(schedule)
+
+        return {
+            "message": f"Update Schedules' date from {schedule_data.old_date} to {schedule_data.new_date} Success"
+        }
+    
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    finally:
+        db.close()
+
+@scheduleRouter.patch("/availability/{schedule_id}", response_model=ScheduleResponse)
+def update_schedule_availability(schedule_id: int, db:Session = Depends(get_db), authorization: str = Header(None)):
+
+    try:
+        if not authorization:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        token = authorization.split()[1]
+        secret_key = "secret"
+        payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+
+        if payload.get('role') != "admin":
+            raise HTTPException(status_code=401, detail="Unauthorized Access!")
+        
+        schedule = db.query(DBSchedule).filter(DBSchedule.id == schedule_id).first()
+        if schedule is None:
+            raise HTTPException(status_code=400, detail="Schedule not found")
+        
+        schedule.is_available = not schedule.is_available
+
+        db.commit()
+        db.refresh(schedule)
+
+        return {
+            "message": "Update Schedule Availability Success",
+            "data": schedule
+        }
+    
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:

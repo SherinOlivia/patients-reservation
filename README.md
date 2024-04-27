@@ -2,13 +2,60 @@
 
 Part of initial recruitment test by Zi.Care, I was tasked to design schema and write the CRUD APIs for the topic patients reservation, where from a list of patients, each of them can book a reservation for a consultation and the reservation is based on the clinic slot/schedule availability, lastly the patient will get the queue number.
 
+## How to Set Up
+
+To Start the patients-reservation APIs locally, follow these steps:
+
+1. Clone this repository to your local machine:
+
+```bash
+git clone https://github.com/SherinOlivia/patients-reservation.git
+```
+
+2. Navigate into the project directory:
+
+```bash
+cd patients-reservation
+```
+
+3. Open it in VSCode or any other of your choice:
+
+```bash
+code .
+```
+4. Install The Dependencies:
+
+```bash
+pipenv install
+```
+
+5. Run the Server:
+
+```bash
+uvicorn main:app --reload
+```
+
+6. Test the APIs through Postman. by using this link as the base and check the next part (Endpoint List):
+
+```bash
+http://localhost:8000/
+```
+or
+
+8. Or access the documentation provided by fastapi:
+[here](http://localhost:8000/docs)
 
 ## Assumptions Made During Development
 
-1. **User Registration Process:** gives the user the role `patient` by default. (Registering as `Admin` can **only** be done by existing admins)
-2. **Doctor Registration Process:** can **only** be done by `admin` and **only** for reservation purposes not for directly interacting with the `patient` (therefore no login function available for `doctors`)
-3. **Schedules:** each schedule **only** has one slot, hence the usage of `is_available` field.
-
+1. **Users:** 
+- registraion process gives the user the role `patient` by default.
+- registering as `Admin` can **only** be done by existing admins
+2. **Doctors:** 
+- Doctor registrations can **only** be done by `admin` and **only** for reservation purposes not for directly interacting with the `patient` (therefore no login function available for `doctors`)
+3. **Schedules:** 
+- each schedule **only** has one slot, hence the usage of `is_available` field.
+- `admin` can update the current date's schedules to new date instead of creating new schedules daily
+- `admin` can manually update the availability of each schedule
 
 ## Personal Take
 
