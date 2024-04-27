@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
 from core.models.doctors import Doctor
 from core.models.schedules import Schedule as DBSchedule
-from core.schemas.schedules import Schedule as ScheduleSchema, ScheduleListResponse, ScheduleResponse, UpdateScheduleAvailability, UpdateScheduleDate, UpdateScheduleDateResponse
+from core.schemas.schedules import Schedule as ScheduleSchema, ScheduleListResponse, ScheduleResponse, CreateScheduleByDate, CreateScheduleByDateResponse
 from core.models.database import get_db
 from sqlalchemy.orm import Session
 import jwt
@@ -96,7 +96,7 @@ def get_schedules_by_doctor(doctor_id: int, db:Session = Depends(get_db), author
         if payload is None:
             raise HTTPException(status_code=401, detail="Unauthorized Access!")
         
-        schedule_list = db.query(DBSchedule).filter(DBSchedule.doctor_id == doctor_id).all()
+        schedule_list = db.query(DBSchedule).filter_by(doctor_id=doctor_id).all()
         doctor = db.query(Doctor).filter_by(id=doctor_id).first()
         if doctor is None:
             raise HTTPException(status_code=404, detail=f"Doctor with ID {doctor_id} not found")
@@ -127,7 +127,7 @@ def edit_schedule(schedule_id: int, schedule_data: ScheduleSchema, db:Session = 
         if payload.get('role') != "admin":
             raise HTTPException(status_code=401, detail="Unauthorized Access!")
         
-        schedule = db.query(DBSchedule).filter(DBSchedule.id == schedule_id).first()
+        schedule = db.query(DBSchedule).filter_by(id=schedule_id).first()
         if schedule is None:
             raise HTTPException(status_code=400, detail="Schedule not found")
         
@@ -180,7 +180,7 @@ def delete_schedule(schedule_id: int, db:Session = Depends(get_db), authorizatio
         if payload.get('role') != "admin":
             raise HTTPException(status_code=401, detail="Unauthorized Access!")
         
-        schedule = db.query(DBSchedule).filter(DBSchedule.id == schedule_id).first()
+        schedule = db.query(DBSchedule).filter_by(id=schedule_id).first()
         if schedule is None:
             raise HTTPException(status_code=400, detail="Schedule not found")
 
@@ -199,8 +199,8 @@ def delete_schedule(schedule_id: int, db:Session = Depends(get_db), authorizatio
     finally:
         db.close()
 
-@scheduleRouter.patch("/", response_model=UpdateScheduleDateResponse)
-def update_schedule_date(schedule_data: UpdateScheduleDate, db:Session = Depends(get_db), authorization: str = Header(None)):
+@scheduleRouter.post("/by-date", response_model=CreateScheduleByDateResponse)
+def create_schedule_by_date(schedule_data: CreateScheduleByDate, db:Session = Depends(get_db), authorization: str = Header(None)):
 
     try:
         if not authorization:
@@ -213,27 +213,27 @@ def update_schedule_date(schedule_data: UpdateScheduleDate, db:Session = Depends
         if payload.get('role') != "admin":
             raise HTTPException(status_code=401, detail="Unauthorized Access!")
         
-        schedules_by_date = db.query(DBSchedule).filter(date = schedule_data.old_date).all()
-        if not schedules_by_date:
+        schedules = db.query(DBSchedule).filter_by(date=schedule_data.old_date).all()
+
+        if schedules is None:
             raise HTTPException(status_code=400, detail="Schedule not found")
         
-        # to prevent schedule update overlap with another existing schedule
-        for schedule in schedules_by_date:
-            existing_schedule = db.query(DBSchedule).filter(
-                DBSchedule.id != schedule.id,
-                DBSchedule.date == schedule_data.new_date,
-            ).first()
-            if existing_schedule is not None:
-                raise HTTPException(status_code=400, detail="schedule with these details already exists")
-
-            if schedule_data.new_date:
-                schedule.date = schedule_data.new_date
+        for schedule in schedules:
+            new_schedule = DBSchedule(
+                date=schedule_data.new_date,
+                start_time=schedule.start_time,
+                end_time=schedule.end_time,
+                is_available=True,
+                doctor_id=schedule.doctor_id
+            )
+            db.add(new_schedule)
+            db.commit()
+            db.refresh(new_schedule)
 
         db.commit()
-        db.refresh(schedule)
 
         return {
-            "message": f"Update Schedules' date from {schedule_data.old_date} to {schedule_data.new_date} Success"
+            "message": f"Created new Schedules' with new date {schedule_data.new_date} Success"
         }
     
     except jwt.ExpiredSignatureError:
@@ -258,7 +258,7 @@ def update_schedule_availability(schedule_id: int, db:Session = Depends(get_db),
         if payload.get('role') != "admin":
             raise HTTPException(status_code=401, detail="Unauthorized Access!")
         
-        schedule = db.query(DBSchedule).filter(DBSchedule.id == schedule_id).first()
+        schedule = db.query(DBSchedule).filter_by(id=schedule_id).first()
         if schedule is None:
             raise HTTPException(status_code=400, detail="Schedule not found")
         

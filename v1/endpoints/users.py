@@ -17,7 +17,7 @@ def hash_password(password: str):
 def register(user_data: UserRegister, db:Session = Depends(get_db)):
 
     try:
-        existing_user = db.query(DBUser).filter(DBUser.email == user_data.email).first()
+        existing_user = db.query(DBUser).filter_by(email=user_data.email).first()
         if existing_user:
             raise HTTPException(status_code=400, detail="Email already registered")
 
@@ -40,7 +40,7 @@ def register(user_data: UserRegister, db:Session = Depends(get_db)):
 def login(user_data: UserLogin, db:Session = Depends(get_db)):
 
     try:
-        user = db.query(DBUser).filter(DBUser.email == user_data.email).first()
+        user = db.query(DBUser).filter_by(email=user_data.email).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         
