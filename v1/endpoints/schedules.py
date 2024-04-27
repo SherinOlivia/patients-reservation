@@ -97,7 +97,7 @@ def get_schedules_by_doctor(doctor_id: int, db:Session = Depends(get_db), author
             raise HTTPException(status_code=401, detail="Unauthorized Access!")
         
         schedule_list = db.query(DBSchedule).filter(DBSchedule.doctor_id == doctor_id).all()
-        doctor = db.query(Doctor).filter(id=doctor_id).first()
+        doctor = db.query(Doctor).filter_by(id=doctor_id).first()
         if doctor is None:
             raise HTTPException(status_code=404, detail=f"Doctor with ID {doctor_id} not found")
 

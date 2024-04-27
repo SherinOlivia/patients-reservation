@@ -9,10 +9,16 @@ class Doctor(BaseModel):
     class Config:
         orm_mode = True
 
+class DoctorDB(Doctor):
+    id: int
+
+    class Config:
+        orm_mode = True
+
 class DoctorResponse(BaseModel):
     message: str
-    data: Doctor
+    data: DoctorDB
 
 class DoctorListResponse(BaseModel):
     message: str
-    data: List[Doctor]
+    data: List[DoctorDB]

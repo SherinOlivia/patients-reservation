@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from core.models.database import Base, SessionLocal, engine
+from core.models.database import Base, engine
 from v1 import api
 
 app = FastAPI()

@@ -10,6 +10,11 @@ class User(BaseModel):
     email: EmailStr
     role: UserRole = UserRole.patient
 
+class UserDB(User):
+    id: int
+    class Config:
+        orm_mode = True
+
 class UserRegister(User):
     password: str
 
@@ -22,11 +27,11 @@ class UserLogin(BaseModel):
 
 class RegisterResponse(BaseModel):
     message: str
-    data: User
+    data: UserDB
 
 class LoginResponse(BaseModel):
     message: str
-    data: User
+    data: UserDB
     access_token: str
     token_type: str
 

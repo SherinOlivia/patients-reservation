@@ -12,4 +12,5 @@ class Schedule(Base):
     is_available = Column(Boolean, nullable=False, default=True)
     doctor_id = Column(Integer, ForeignKey('doctors.id'), nullable=False)
 
-    doctors = relationship("Doctor", back_populates="schedules")
+    doctor = relationship("Doctor", back_populates="schedules")
+    reservation = relationship("Reservation", back_populates="schedule")

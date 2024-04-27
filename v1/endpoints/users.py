@@ -4,7 +4,7 @@ from core.models.users import User as DBUser
 from core.schemas.users import LoginResponse, LogoutResponse, RegisterResponse, UserLogin, UserRegister
 from core.models.database import get_db
 from sqlalchemy.orm import Session
-import bcrypt, jwt, datetime
+import bcrypt, jwt, datetime, pytz
 
 userRouter = APIRouter()
 
@@ -52,8 +52,9 @@ def login(user_data: UserLogin, db:Session = Depends(get_db)):
 
         token = jwt.encode({
             'email': user.email,
+            'id': user.id,
             'role': user.role,
-            'exp': datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=+7))) + datetime.timedelta(hours=5)
+            'exp': datetime.datetime.now(pytz.timezone('Asia/Jakarta')) + datetime.timedelta(hours=5)
         }, secret_key, algorithm='HS256')
 
 
