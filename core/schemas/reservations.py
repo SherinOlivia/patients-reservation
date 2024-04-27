@@ -21,6 +21,9 @@ class ReservationDB(Reservation):
     class Config:
         orm_mode = True
 
+class UpdateReservationStatus(BaseModel):
+    status: ReservationStatus
+
 class ReservationResponse(BaseModel):
     message: str
     data: ReservationDB
