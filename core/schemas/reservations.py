@@ -1,6 +1,6 @@
-from datetime import datetime, time
+from datetime import time
 from typing import List, Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from enum import Enum
 
 class ReservationStatus(str, Enum):
@@ -9,13 +9,11 @@ class ReservationStatus(str, Enum):
     completed = "completed"
 
 class Reservation(BaseModel):
-    user_id: int
-    schedule_id: int
-    date: Optional[datetime] = None
-    start_time: Optional[time] = None
-    end_time: Optional[time] = None
-    queue_number: int
+    user_id: Optional[int] = None
+    schedule_id: Optional[int] = None
+    queue_number: Optional[int] = None
     status: ReservationStatus = ReservationStatus.ongoing
+    created_at: Optional[time] = None
 
 class ReservationDB(Reservation):
     id: int
