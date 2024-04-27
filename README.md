@@ -47,12 +47,16 @@ uvicorn main:app --reload
 6. Test the APIs through Postman. by using this link as the base and check the next part (Endpoint List):
 
 ```bash
+https://patients-reservation.onrender.com
+```
+or
+
+```bash
 http://localhost:8000/
 ```
 or
 
-7. Or access the documentation provided by fastapi:
-[here (local)](http://localhost:8000/docs)
+7. Or access the documentation provided by fastapi: [here](https://patients-reservation.onrender.com/docs) or [here (local)](http://localhost:8000/docs) 
 
 ## Assumptions Made During Development
 
