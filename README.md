@@ -5,6 +5,11 @@ Part of initial recruitment test by Zi.Care, I was tasked to design schema and w
 ## Database Schema
 
 ![database-schema](asset/patients-reservations-diagram.png)
+Explanations:
+1. For simplicity purposes, I only put the main information on both users table and doctors table (in real cases, they will be more informative)
+2. There are two roles available for users table: `admin` and `patient`, where the default is `patient`
+3. The schedules are set so that each entry can only be booked one at a time.
+4. The `created_at` on reservations table's is currently not used in any logic in any endpoints but can be used for future updates where sorting is required.
 
 ## How to Set Up
 
@@ -44,7 +49,8 @@ pip install -r requirement.txt
 uvicorn main:app --reload
 ```
 
-6. Test the APIs through Postman. by using this link as the base and check the next part (Endpoint List):
+6. Test the APIs through Postman. by using any of these links:
+**note:**Please inform me of any issues, because the `free instance will spin down with inactivity, which can delay requests by 50 seconds or more`
 
 ```bash
 https://patients-reservation.onrender.com
@@ -79,12 +85,11 @@ or
 
 ## Personal Take
 
-This mini project has been really challenging for me, especially as a first-timer in using fastapi framework. Fortunately for me, the information provided on the internet, whether through the [official documentation](https://fastapi.tiangolo.com/), questions someone else asked on Stack Overflow, private consultations with ChatGPT or anywhere else online are vast and informative.
+This mini project has been really challenging for me, especially as a first-timer in using fastapi framework. Fortunately for me, the information provided on the internet, whether through the [official documentation](https://fastapi.tiangolo.com/), questions someone else asked on Stack Overflow, private consultations with ChatGPT or anywhere else online is vast and informative.
 
-Especially thanks to this question on Stack Overflow: [What are the best practices for structuring a FastAPI project?](https://stackoverflow.com/questions/64943693/what-are-the-best-practices-for-structuring-a-fastapi-project), 
-I was able to start on a good footing ˙ᵕ˙
+Especially thanks to this question on Stack Overflow: [What are the best practices for structuring a FastAPI project?](https://stackoverflow.com/questions/64943693/what-are-the-best-practices-for-structuring-a-fastapi-project), I was able to start on a good footing ˙ᵕ˙
 
-Needless to say, this project, although started as part of the recruitment test by Zi.Care, is a promising project that I would love to return to develop and polish further! ˙ᵕ˙
+This project, although started as part of the recruitment test by Zi.Care, is a promising project that I would love to return to develop and polish further! ˙ᵕ˙
 
 #### Contact Me
 
