@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel
 
 
@@ -8,6 +9,10 @@ class Doctor(BaseModel):
     class Config:
         orm_mode = True
 
-class RegisterResponse(BaseModel):
+class DoctorResponse(BaseModel):
     message: str
     data: Doctor
+
+class DoctorListResponse(BaseModel):
+    message: str
+    data: List[Doctor]
