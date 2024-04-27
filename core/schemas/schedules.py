@@ -18,12 +18,9 @@ class ScheduleDB(Schedule):
     class Config:
         orm_mode = True
 
-class UpdateScheduleDate(BaseModel):
-    old_date: Optional[datetime] = None
-    new_date: Optional[datetime] = None
-
-class UpdateScheduleAvailability(BaseModel):
-    is_available: bool
+class CreateScheduleByDate(BaseModel):
+    old_date: Optional[datetime]
+    new_date: Optional[datetime]
 
 class ScheduleResponse(BaseModel):
     message: str
@@ -33,5 +30,5 @@ class ScheduleListResponse(BaseModel):
     message: str
     data: List[ScheduleDB]
       
-class UpdateScheduleDateResponse(BaseModel):
+class CreateScheduleByDateResponse(BaseModel):
     message: str
